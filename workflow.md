@@ -14,7 +14,7 @@ End goal: from a source image and an AMS palette, produce halftoned dot geometry
 
 ## Target Print Parameters
 - Nozzle 0.2 mm; line width 0.22-0.28 mm; layer height 0.08-0.12 mm.
-- Dot diameter 0.25-0.35 mm; center spacing 0.35-0.50 mm.
+- Dot diameter 0.25-0.35 mm; center-to-center spacing 0.35-0.50 mm (spacing-mm).
 - Speeds: external 35-45 mm/s; small perimeters slow.
 - Temp: 195-205 C for PLA (low end to reduce ooze); fan 100% after first layers.
 - Dots 1-2 layers tall for a flush surface.
@@ -49,11 +49,27 @@ End goal: from a source image and an AMS palette, produce halftoned dot geometry
   ```
   python pointillism_pipeline.py A_Sunday_on_La_Grande_Jatte.jpg bambu-pla-matte-hex-codes.md out
   ```  
-  Defaults: width 100 mm, spacing 0.4 mm, dot 0.3 mm, dot height 0.2 mm, base 0.2 mm, 24 segments, palette = Sky Blue, Scarlet Red, Lemon Yellow, Charcoal.  
+  Defaults: width 60 mm, spacing 0.4 mm (center-to-center), dot 0.3 mm, dot height 0.2 mm, base 0.2 mm, 12 segments (coarser = smaller files), palette = Sky Blue, Scarlet Red, Lemon Yellow, Charcoal.  
   Outputs: `dithered.png`, per-color `mask_*.png`, `dots.svg`, `metadata.json`, and STLs (`base.stl` plus one per color).  
   Import STLs into CAD if you want to merge; in Bambu Studio assign each color STL to its AMS tool, 0.2 mm nozzle, 0.1 mm layer height, 0.24-0.26 mm line width, 195-205 C PLA, fan 100%, flush tower on with tuned flush volumes.  
 - Optional: auto-generate a Bambu Studio 3MF template by duplicating a known-good project and swapping meshes via 3MF XML (ZIP) edits.  
 - Palette data: keep as JSON/CSV or the provided Markdown; include AMS tool mapping and purge length per filament.
+
+### Using the full A1 plate (~256×256 mm)
+- Set `--width-mm` near 230-240 mm to leave edge clearance:  
+  ```
+  python pointillism_pipeline.py A_Sunday_on_La_Grande_Jatte.jpg bambu-pla-matte-hex-codes.md out \
+    --width-mm 240
+  ```  
+- Spacing remains center-to-center; with 0.4 mm spacing a 240 mm tile yields ~600 pixels across. Expect more dots and longer print times, so keep palette to 3–4 colors and tune AMS flush volumes carefully.
+
+## Parameter definitions
+- width-mm: physical width of the printed tile. The image is resampled so that (pixels * spacing-mm) == width-mm.
+- spacing-mm: center-to-center grid pitch for dots. Every pixel maps to a dot center spaced this far apart; it is not edge-to-edge.
+- dot-mm: dot diameter (used for SVG and STL cylinders).
+- dot-height-mm: dot height above the base.
+- base-thickness-mm: thickness of the flat base tile before dots.
+- segments: number of facets used to approximate each circular dot in STL.
 
 ## Acceptance Criteria
 - Visual: at 30-60 cm, colors optically mix; dots visible only on close inspection.  

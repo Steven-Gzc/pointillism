@@ -365,12 +365,12 @@ def main() -> None:
     parser.add_argument("image", type=pathlib.Path, help="Input image (PNG/JPEG).")
     parser.add_argument("palette", type=pathlib.Path, help="Palette file (.json or Markdown table with Name|Hex).")
     parser.add_argument("out_dir", type=pathlib.Path, help="Output directory for artifacts.")
-    parser.add_argument("--width-mm", type=float, default=100.0, help="Physical width of the print in mm (default: 100).")
-    parser.add_argument("--spacing-mm", type=float, default=0.1, help="Dot spacing in mm (default: 0.1).")
-    parser.add_argument("--dot-mm", type=float, default=0.2, help="Dot diameter in mm (default: 0.2).")
-    parser.add_argument("--dot-height-mm", type=float, default=0.2, help="Dot height in mm (default: 0.2).")
+    parser.add_argument("--width-mm", type=float, default=60.0, help="Physical width of the print in mm (default: 60).")
+    parser.add_argument("--spacing-mm", type=float, default=0.3, help="Dot spacing in mm (default: 0.3).")
+    parser.add_argument("--dot-mm", type=float, default=0.22, help="Dot diameter in mm (default: 0.22).")
+    parser.add_argument("--dot-height-mm", type=float, default=0.1, help="Dot height in mm (default: 0.1).")
     parser.add_argument("--base-thickness-mm", type=float, default=0.2, help="Base tile thickness in mm (default: 0.2).")
-    parser.add_argument("--segments", type=int, default=24, help="Segments to approximate dot circles (default: 24).")
+    parser.add_argument("--segments", type=int, default=12, help="Segments to approximate dot circles (default: 12; lower = fewer triangles, faster export/smaller files).")
     parser.add_argument(
         "--colors",
         type=str,
