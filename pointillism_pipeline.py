@@ -236,10 +236,17 @@ def export_svg(
                 return "#" + "".join(f"{v:02X}" for v in c)
         return "#000000"
 
+    # Background uses charcoal (if present) to match the darkest filament; else black.
+    charcoal = "#000000"
+    for n, c in palette:
+        if n.lower() == "charcoal":
+            charcoal = "#" + "".join(f"{v:02X}" for v in c)
+            break
+
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width_mm}mm" height="{height_mm}mm" viewBox="0 0 {width_mm} {height_mm}">',
-        f'<rect x="0" y="0" width="{width_mm}" height="{height_mm}" fill="#f7f7f7" />',
+        f'<rect x="0" y="0" width="{width_mm}" height="{height_mm}" fill="{charcoal}" />',
     ]
 
     for name, positions in coords.items():
@@ -383,7 +390,7 @@ def main() -> None:
         default=pathlib.Path("out"),
         help="Output directory for artifacts. Defaults to ./out",
     )
-    parser.add_argument("--width-mm", type=float, default=60.0, help="Physical width of the print in mm (default: 60).")
+    parser.add_argument("--width-mm", type=float, default=180.0, help="Physical width of the print in mm (default: 180).")
     parser.add_argument("--spacing-mm", type=float, default=0.3, help="Dot spacing in mm (default: 0.3).")
     parser.add_argument("--dot-mm", type=float, default=0.24, help="Dot diameter in mm (default: 0.24).")
     parser.add_argument("--dot-height-mm", type=float, default=0.1, help="Dot height in mm (default: 0.1).")
