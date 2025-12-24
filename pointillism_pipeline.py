@@ -362,12 +362,30 @@ def run(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate pointillist dots and SVG for Bambu A1 + AMS.")
-    parser.add_argument("image", type=pathlib.Path, help="Input image (PNG/JPEG).")
-    parser.add_argument("palette", type=pathlib.Path, help="Palette file (.json or Markdown table with Name|Hex).")
-    parser.add_argument("out_dir", type=pathlib.Path, help="Output directory for artifacts.")
+    parser.add_argument(
+        "image",
+        type=pathlib.Path,
+        nargs="?",
+        default=pathlib.Path("A_Sunday_on_La_Grande_Jatte.jpg"),
+        help="Input image (PNG/JPEG). Defaults to A_Sunday_on_La_Grande_Jatte.jpg",
+    )
+    parser.add_argument(
+        "palette",
+        type=pathlib.Path,
+        nargs="?",
+        default=pathlib.Path("bambu-pla-matte-hex-codes.md"),
+        help="Palette file (.json or Markdown table with Name|Hex). Defaults to bambu-pla-matte-hex-codes.md",
+    )
+    parser.add_argument(
+        "out_dir",
+        type=pathlib.Path,
+        nargs="?",
+        default=pathlib.Path("out"),
+        help="Output directory for artifacts. Defaults to ./out",
+    )
     parser.add_argument("--width-mm", type=float, default=60.0, help="Physical width of the print in mm (default: 60).")
     parser.add_argument("--spacing-mm", type=float, default=0.3, help="Dot spacing in mm (default: 0.3).")
-    parser.add_argument("--dot-mm", type=float, default=0.22, help="Dot diameter in mm (default: 0.22).")
+    parser.add_argument("--dot-mm", type=float, default=0.24, help="Dot diameter in mm (default: 0.24).")
     parser.add_argument("--dot-height-mm", type=float, default=0.1, help="Dot height in mm (default: 0.1).")
     parser.add_argument("--base-thickness-mm", type=float, default=0.2, help="Base tile thickness in mm (default: 0.2).")
     parser.add_argument("--segments", type=int, default=12, help="Segments to approximate dot circles (default: 12; lower = fewer triangles, faster export/smaller files).")

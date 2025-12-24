@@ -49,7 +49,7 @@ End goal: from a source image and an AMS palette, produce halftoned dot geometry
   ```
   python pointillism_pipeline.py A_Sunday_on_La_Grande_Jatte.jpg bambu-pla-matte-hex-codes.md out
   ```  
-  Defaults: width 60 mm, spacing 0.4 mm (center-to-center), dot 0.3 mm, dot height 0.2 mm, base 0.2 mm, 12 segments (coarser = smaller files), palette = Sky Blue, Scarlet Red, Lemon Yellow, Charcoal.  
+  Defaults: width 60 mm, spacing 0.4 mm (center-to-center), dot 0.3 mm, dot height 0.2 mm, base - mm, 12 segments (coarser = smaller files), palette = Sky Blue, Scarlet Red, Lemon Yellow, Charcoal.  
   Outputs: `dithered.png`, per-color `mask_*.png`, `dots.svg`, `metadata.json`, and STLs (`base.stl` plus one per color).  
   Import STLs into CAD if you want to merge; in Bambu Studio assign each color STL to its AMS tool, 0.2 mm nozzle, 0.1 mm layer height, 0.24-0.26 mm line width, 195-205 C PLA, fan 100%, flush tower on with tuned flush volumes.  
 - Optional: auto-generate a Bambu Studio 3MF template by duplicating a known-good project and swapping meshes via 3MF XML (ZIP) edits.  
