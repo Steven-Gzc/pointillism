@@ -77,7 +77,11 @@ def load_palette(path: pathlib.Path, select: Sequence[str] | None = None) -> Lis
     return colors
 
 
-def resize_image(img: Image.Image, target_width_mm: float, spacing_mm: float) -> Image.Image:
+def resize_image_hex(img: Image.Image, target_width_mm: float, spacing_mm: float) -> Image.Image:
+    """
+    Resize so that horizontal center-to-center spacing equals spacing_mm.
+    Height is derived from aspect; vertical pitch is spacing_mm * sqrt(3)/2.
+    """
     target_px_w = max(1, int(round(target_width_mm / spacing_mm)))
     aspect = img.height / img.width
     target_px_h = max(1, int(round(target_px_w * aspect)))
@@ -139,14 +143,19 @@ def export_masks(color_grid: List[List[str]], palette: List[Tuple[str, Color]], 
     for y in range(height):
         for x in range(width):
             name = color_grid[y][x]
-            coords[name].append((x * spacing_mm, y * spacing_mm))
+            # Hex stagger: odd rows offset by half spacing; vertical pitch is spacing * sqrt(3)/2
+            x_off = spacing_mm / 2 if (y % 2 == 1) else 0.0
+            y_mm = y * spacing_mm * math.sqrt(3) / 2
+            coords[name].append((x * spacing_mm + x_off, y_mm))
 
     for name, color in palette:
         mask_img = Image.new("1", (width, height), 0)
         mask_pixels = mask_img.load()
-        for x, y in [(int(round(cx / spacing_mm)), int(round(cy / spacing_mm))) for cx, cy in coords[name]]:
-            if 0 <= x < width and 0 <= y < height:
-                mask_pixels[x, y] = 1
+        for idx, (cx, cy) in enumerate(coords[name]):
+            # Reverse mapping: nearest pixel index; good enough for reference masks
+            px = min(width - 1, max(0, int(round(cx / spacing_mm))))
+            py = min(height - 1, max(0, int(round((cy / spacing_mm) / (math.sqrt(3) / 2)))))
+            mask_pixels[px, py] = 1
         mask_img.save(out_dir / f"mask_{slugify(name)}.png")
     return coords
 
@@ -221,13 +230,10 @@ def export_svg(
     coords: Dict[str, List[Tuple[float, float]]],
     palette: List[Tuple[str, Color]],
     dot_diameter_mm: float,
-    width_px: int,
-    height_px: int,
-    spacing_mm: float,
+    width_mm: float,
+    height_mm: float,
     out_path: pathlib.Path,
 ) -> None:
-    width_mm = width_px * spacing_mm
-    height_mm = height_px * spacing_mm
     radius = dot_diameter_mm / 2
 
     def color_hex(name: str) -> str:
@@ -263,9 +269,8 @@ def export_svg(
 def export_stl_meshes(
     coords: Dict[str, List[Tuple[float, float]]],
     palette: List[Tuple[str, Color]],
-    width_px: int,
-    height_px: int,
-    spacing_mm: float,
+    width_mm: float,
+    height_mm: float,
     dot_diameter_mm: float,
     dot_height_mm: float,
     base_thickness_mm: float,
@@ -276,8 +281,6 @@ def export_stl_meshes(
     Export base tile and per-color dot meshes as STL files.
     Returns mapping of part name to filename.
     """
-    width_mm = width_px * spacing_mm
-    height_mm = height_px * spacing_mm
     radius = dot_diameter_mm / 2.0
 
     # Base tile
@@ -322,33 +325,38 @@ def run(
     palette = load_palette(palette_path, select=selected_colors)
 
     img = Image.open(image_path)
-    resized = resize_image(img, width_mm, spacing_mm)
+    resized = resize_image_hex(img, width_mm, spacing_mm)
     pal_img, color_grid = floyd_steinberg_dither(resized, palette)
 
     pal_img.save(out_dir / "dithered.png")
     coords = export_masks(color_grid, palette, spacing_mm, out_dir)
+    width_mm_used = resized.width * spacing_mm
+    height_mm_used = resized.height * spacing_mm * math.sqrt(3) / 2
     export_svg(
         coords,
         palette,
         dot_diameter_mm,
-        resized.width,
-        resized.height,
-        spacing_mm,
+        width_mm_used,
+        height_mm_used,
         out_dir / "dots.svg",
     )
 
     stl_files = export_stl_meshes(
         coords,
         palette,
-        resized.width,
-        resized.height,
-        spacing_mm,
+        width_mm_used,
+        height_mm_used,
         dot_diameter_mm,
         dot_height_mm,
         base_thickness_mm,
         segments,
         out_dir,
     )
+
+    total_dots = sum(len(v) for v in coords.values())
+    dot_area = math.pi * (dot_diameter_mm / 2) ** 2
+    total_area = width_mm_used * height_mm_used if width_mm_used > 0 and height_mm_used > 0 else 1
+    coverage_fraction = (total_dots * dot_area) / total_area
 
     metadata = {
         "image": str(image_path),
@@ -361,6 +369,19 @@ def run(
         "base_thickness_mm": base_thickness_mm,
         "segments": segments,
         "pixel_dimensions": {"width": resized.width, "height": resized.height},
+        "grid": {
+            "type": "hex_staggered",
+            "vertical_pitch_mm": spacing_mm * math.sqrt(3) / 2,
+            "width_mm": width_mm_used,
+            "height_mm": height_mm_used,
+        },
+        "coverage": {
+            "total_dots": total_dots,
+            "dot_area_mm2": dot_area,
+            "coverage_area_mm2": total_dots * dot_area,
+            "coverage_fraction": coverage_fraction,
+            "coverage_percent": coverage_fraction * 100,
+        },
         "palette": [{ "name": n, "rgb": c } for n, c in palette],
         "stl_files": stl_files,
     }
@@ -390,12 +411,12 @@ def main() -> None:
         default=pathlib.Path("out"),
         help="Output directory for artifacts. Defaults to ./out",
     )
-    parser.add_argument("--width-mm", type=float, default=180.0, help="Physical width of the print in mm (default: 180).")
-    parser.add_argument("--spacing-mm", type=float, default=0.3, help="Dot spacing in mm (default: 0.3).")
+    parser.add_argument("--width-mm", type=float, default=120.0, help="Physical width of the print in mm (default: 120).")
+    parser.add_argument("--spacing-mm", type=float, default=0.34, help="Dot spacing in mm (default: 0.34).")
     parser.add_argument("--dot-mm", type=float, default=0.24, help="Dot diameter in mm (default: 0.24).")
     parser.add_argument("--dot-height-mm", type=float, default=0.1, help="Dot height in mm (default: 0.1).")
     parser.add_argument("--base-thickness-mm", type=float, default=0.2, help="Base tile thickness in mm (default: 0.2).")
-    parser.add_argument("--segments", type=int, default=12, help="Segments to approximate dot circles (default: 12; lower = fewer triangles, faster export/smaller files).")
+    parser.add_argument("--segments", type=int, default=8, help="Segments to approximate dot circles (default: 8; lower = fewer triangles, faster export/smaller files).")
     parser.add_argument(
         "--colors",
         type=str,
