@@ -334,8 +334,15 @@ def run(
     pal_img.save(out_dir / "dithered.png")
     coords = export_masks(color_grid, palette, spacing_mm, dot_diameter_mm, out_dir)
     pitch = spacing_mm * math.sqrt(3) / 2
-    width_mm_used = (resized.width - 1) * spacing_mm + dot_diameter_mm
-    height_mm_used = (resized.height - 1) * pitch + dot_diameter_mm
+    radius = dot_diameter_mm / 2
+
+    # Compute actual extents from generated coordinates (accounts for stagger offsets).
+    all_points = [pt for pts in coords.values() for pt in pts]
+    max_x = max(pt[0] for pt in all_points) if all_points else 0.0
+    max_y = max(pt[1] for pt in all_points) if all_points else 0.0
+    width_mm_used = max_x + radius
+    height_mm_used = max_y + radius
+
     export_svg(
         coords,
         palette,
