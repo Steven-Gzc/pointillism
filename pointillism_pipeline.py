@@ -405,8 +405,8 @@ def main() -> None:
         "image",
         type=pathlib.Path,
         nargs="?",
-        default=pathlib.Path("A_Sunday_on_La_Grande_Jatte.jpg"),
-        help="Input image (PNG/JPEG). Defaults to A_Sunday_on_La_Grande_Jatte.jpg",
+        default=pathlib.Path("sailboat.jpg"),
+        help="Input image (PNG/JPEG). Defaults to sailboat.jpg",
     )
     parser.add_argument(
         "palette",
@@ -422,7 +422,7 @@ def main() -> None:
         default=pathlib.Path("out"),
         help="Output directory for artifacts. Defaults to ./out",
     )
-    parser.add_argument("--width-mm", type=float, default=120.0, help="Physical width of the print in mm (default: 120).")
+    parser.add_argument("--width-mm", type=float, default=180.0, help="Physical width of the print in mm (default: 180).")
     parser.add_argument("--spacing-mm", type=float, default=0.8, help="Dot spacing in mm (default: 0.8).")
     parser.add_argument("--dot-mm", type=float, default=0.8, help="Dot diameter in mm (default: 0.8).")
     parser.add_argument("--dot-height-mm", type=float, default=0.4, help="Dot height in mm (default: 0.4).")
