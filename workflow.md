@@ -1,41 +1,35 @@
 # Pointillist 3MF Workflow (Bambu Lab A1 + AMS, 0.2 mm)
 
-End goal: from a source image and an AMS palette, produce halftoned dot geometry, STLs, and a sliced 3MF for pointillist tiles on the A1 with a 0.2 mm nozzle.
+End goal: from a source image and an AMS palette, produce halftoned dot geometry, STLs, and a sliced 3MF for pointillist tiles on the A1 with a 0.4 mm nozzle.
 
 ## Inputs
 - Source image: PNG/JPEG, cropped to final aspect.
 - Palette: 3-4 colors (CMYK-ish recommended) with hex codes; see `bambu-pla-matte-hex-codes.md`.
-- Hardware: Bambu Lab A1 + AMS; nozzle 0.2 mm; filament profiles for chosen colors.
+- Hardware: Bambu Lab A1 + AMS; nozzle 0.4 mm; filament profiles for chosen colors.
 
 ## Outputs
 - Dithered per-color bitmaps.
 - Dot geometry: base tile STL plus per-color dot STLs; SVG for reference/import.
 - A sliced Bambu Studio project (3MF) targeting A1 with AMS assignments and purge settings.
 
-## Target Print Parameters
-- Nozzle 0.2 mm; line width 0.22-0.28 mm; layer height 0.08-0.12 mm.
-- Dot diameter 0.25-0.35 mm; center-to-center spacing 0.35-0.50 mm (spacing-mm).
-- Speeds: external 35-45 mm/s; small perimeters slow.
-- Temp: 195-205 C for PLA (low end to reduce ooze); fan 100% after first layers.
-- Dots 1-2 layers tall for a flush surface.
-
 ## Workflow (pipeline)
 1) **Palette selection**  
    - Choose 3-4 filaments. Prefer matte PLA. Map each to AMS slot (T0-T3).
 2) **Image prep**  
-   - Resize so pixel pitch equals desired dot spacing (e.g., 0.4 mm per pixel).  
+   - Resize so pixel pitch equals desired dot spacing (e.g., 0.8 mm per pixel).  
    - Apply ordered or error-diffusion dithering to the limited palette; enforce minimum run length per color if possible.
 3) **Dot geometry generation**  
-   - Convert “on” pixels to circles of diameter 0.25-0.35 mm at the chosen spacing.  
-   - Project all circles onto a thin base tile (1-2 layers, single shell). Keep dots at full extrusion width.  
+   - Convert “on” pixels to circles at the chosen diameter and spacing.  
+   - Project all circles onto a thin base tile. Keep dots at full extrusion width.  
    - Export per-color meshes or a multi-part 3MF with labeled parts per color.
-4) **Slicing in Bambu Studio**  
-   - Import the base and color meshes; assign each to the corresponding AMS tool.  
-   - Nozzle 0.2 mm, line width 0.24-0.26 mm, layer height 0.10 mm.  
-   - Temps per filament at low end; fan 100%; Z-hop off; combing within infill.  
-   - Enable flush tower; set flush volumes from calibration.  
-   - Short travels; slow small perimeters; optional wipe/coast if available.
-5) **Export**  
+
+## Workflow (manual)
+1) **Slicing in Bambu Studio**  
+   - Import the multi-part 3MF; assign each to the corresponding filement.  
+   - Example1: Nozzle 0.4 mm, line width 0.4 mm, layer height 0.08 mm. 100% infill. Mirror along Y axis (the model is upside down for some reason).
+   - Enable flush tower.
+   - Optional: set flush volumes from calibration. Short travels; slow small perimeters; optional wipe/coast if available.
+2) **Export**  
    - Save the Bambu Studio project as `.3mf` with AMS assignments.  
    - Keep STL/3MF and dithered bitmaps for reproducibility.
 
@@ -47,21 +41,12 @@ End goal: from a source image and an AMS palette, produce halftoned dot geometry
 ## Automation
 - Generator:  
   ```
-  python pointillism_pipeline.py A_Sunday_on_La_Grande_Jatte.jpg bambu-pla-matte-hex-codes.md out
+  python pointillism_pipeline.py sailboat.jpg bambu-pla-matte-hex-codes.md out
   ```  
-  Defaults: width 60 mm, spacing 0.4 mm (center-to-center), dot 0.3 mm, dot height 0.2 mm, base - mm, 12 segments (coarser = smaller files), palette = Sky Blue, Scarlet Red, Lemon Yellow, Charcoal.  
+  Defaults: width 180 mm, spacing 0.8 mm (center-to-center, hex grid), dot 0.8 mm, dot height 0.4 mm, base 0.6 mm, 12 segments, palette = Sky Blue, Scarlet Red, Lemon Yellow, Charcoal.  
   Outputs: `dithered.png`, per-color `mask_*.png`, `dots.svg`, `metadata.json`, and STLs (`base.stl` plus one per color).  
-  Import STLs into CAD if you want to merge; in Bambu Studio assign each color STL to its AMS tool, 0.2 mm nozzle, 0.1 mm layer height, 0.24-0.26 mm line width, 195-205 C PLA, fan 100%, flush tower on with tuned flush volumes.  
-- Optional: auto-generate a Bambu Studio 3MF template by duplicating a known-good project and swapping meshes via 3MF XML (ZIP) edits.  
-- Palette data: keep as JSON/CSV or the provided Markdown; include AMS tool mapping and purge length per filament.
+  Import STLs into CAD if you want to merge; in Bambu Studio assign each color STL to its AMS tool, 0.4 mm nozzle, 0.08 mm layer height, 0.4 mm line width, flush tower on with tuned flush volumes.  
 
-### Using the full A1 plate (~256×256 mm)
-- Set `--width-mm` near 230-240 mm to leave edge clearance:  
-  ```
-  python pointillism_pipeline.py A_Sunday_on_La_Grande_Jatte.jpg bambu-pla-matte-hex-codes.md out \
-    --width-mm 240
-  ```  
-- Spacing remains center-to-center; with 0.4 mm spacing a 240 mm tile yields ~600 pixels across. Expect more dots and longer print times, so keep palette to 3–4 colors and tune AMS flush volumes carefully.
 
 ## Parameter definitions
 - width-mm: physical width of the printed tile. The image is resampled so that (pixels * spacing-mm) == width-mm.
@@ -71,8 +56,3 @@ End goal: from a source image and an AMS palette, produce halftoned dot geometry
 - base-thickness-mm: thickness of the flat base tile before dots.
 - segments: number of facets used to approximate each circular dot in STL.
 
-## Acceptance Criteria
-- Visual: at 30-60 cm, colors optically mix; dots visible only on close inspection.  
-- Geometry: dots are distinct, not smeared; height <=2 layers; base tile flat.  
-- Process: 3MF opens with correct AMS assignments, purge tower enabled, and tuned flush volumes.  
-- Reproducibility: source image, palette file, dithered bitmaps, and generated meshes are versioned alongside the 3MF.

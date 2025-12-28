@@ -1,0 +1,74 @@
+{
+  "image": "sailboat.jpg",
+  "palette_file": "bambu-pla-matte-hex-codes.md",
+  "selected_colors": [
+    "Sky Blue",
+    "Scarlet Red",
+    "Lemon Yellow",
+    "Charcoal"
+  ],
+  "width_mm": 180.0,
+  "spacing_mm": 0.8,
+  "dot_diameter_mm": 0.8,
+  "dot_height_mm": 0.4,
+  "base_thickness_mm": 0.6,
+  "segments": 12,
+  "pixel_dimensions": {
+    "width": 225,
+    "height": 151
+  },
+  "grid": {
+    "type": "hex_staggered",
+    "vertical_pitch_mm": 0.6928203230275509,
+    "width_mm": 180.40000000000003,
+    "height_mm": 104.72304845413265
+  },
+  "coverage": {
+    "total_dots": 33975,
+    "dot_area_mm2": 0.5026548245743669,
+    "coverage_area_mm2": 17077.697664914118,
+    "coverage_fraction": 0.9039627020723989,
+    "coverage_percent": 90.3962702072399
+  },
+  "palette": [
+    {
+      "name": "Lemon Yellow",
+      "rgb": [
+        247,
+        217,
+        89
+      ]
+    },
+    {
+      "name": "Scarlet Red",
+      "rgb": [
+        222,
+        67,
+        67
+      ]
+    },
+    {
+      "name": "Sky Blue",
+      "rgb": [
+        86,
+        183,
+        230
+      ]
+    },
+    {
+      "name": "Charcoal",
+      "rgb": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "stl_files": {
+    "base": "base.stl",
+    "lemon-yellow": "lemon-yellow.stl",
+    "scarlet-red": "scarlet-red.stl",
+    "sky-blue": "sky-blue.stl",
+    "charcoal": "charcoal.stl"
+  }
+}
