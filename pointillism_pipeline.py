@@ -135,26 +135,29 @@ def floyd_steinberg_dither(img: Image.Image, palette: List[Tuple[str, Color]]) -
     return img, color_grid
 
 
-def export_masks(color_grid: List[List[str]], palette: List[Tuple[str, Color]], spacing_mm: float, out_dir: pathlib.Path) -> Dict[str, List[Tuple[float, float]]]:
+def export_masks(color_grid: List[List[str]], palette: List[Tuple[str, Color]], spacing_mm: float, dot_diameter_mm: float, out_dir: pathlib.Path) -> Dict[str, List[Tuple[float, float]]]:
     height = len(color_grid)
     width = len(color_grid[0])
     coords: Dict[str, List[Tuple[float, float]]] = {name: [] for name, _ in palette}
+    pitch = spacing_mm * math.sqrt(3) / 2
+    radius = dot_diameter_mm / 2
 
     for y in range(height):
         for x in range(width):
             name = color_grid[y][x]
             # Hex stagger: odd rows offset by half spacing; vertical pitch is spacing * sqrt(3)/2
             x_off = spacing_mm / 2 if (y % 2 == 1) else 0.0
-            y_mm = y * spacing_mm * math.sqrt(3) / 2
-            coords[name].append((x * spacing_mm + x_off, y_mm))
+            y_mm = radius + y * pitch
+            x_mm = radius + x * spacing_mm + x_off
+            coords[name].append((x_mm, y_mm))
 
     for name, color in palette:
         mask_img = Image.new("1", (width, height), 0)
         mask_pixels = mask_img.load()
         for idx, (cx, cy) in enumerate(coords[name]):
             # Reverse mapping: nearest pixel index; good enough for reference masks
-            px = min(width - 1, max(0, int(round(cx / spacing_mm))))
-            py = min(height - 1, max(0, int(round((cy / spacing_mm) / (math.sqrt(3) / 2)))))
+            px = min(width - 1, max(0, int(round((cx - radius) / spacing_mm))))
+            py = min(height - 1, max(0, int(round((cy - radius) / pitch))))
             mask_pixels[px, py] = 1
         mask_img.save(out_dir / f"mask_{slugify(name)}.png")
     return coords
@@ -329,9 +332,10 @@ def run(
     pal_img, color_grid = floyd_steinberg_dither(resized, palette)
 
     pal_img.save(out_dir / "dithered.png")
-    coords = export_masks(color_grid, palette, spacing_mm, out_dir)
-    width_mm_used = resized.width * spacing_mm
-    height_mm_used = resized.height * spacing_mm * math.sqrt(3) / 2
+    coords = export_masks(color_grid, palette, spacing_mm, dot_diameter_mm, out_dir)
+    pitch = spacing_mm * math.sqrt(3) / 2
+    width_mm_used = (resized.width - 1) * spacing_mm + dot_diameter_mm
+    height_mm_used = (resized.height - 1) * pitch + dot_diameter_mm
     export_svg(
         coords,
         palette,
@@ -371,7 +375,7 @@ def run(
         "pixel_dimensions": {"width": resized.width, "height": resized.height},
         "grid": {
             "type": "hex_staggered",
-            "vertical_pitch_mm": spacing_mm * math.sqrt(3) / 2,
+            "vertical_pitch_mm": pitch,
             "width_mm": width_mm_used,
             "height_mm": height_mm_used,
         },
@@ -412,11 +416,11 @@ def main() -> None:
         help="Output directory for artifacts. Defaults to ./out",
     )
     parser.add_argument("--width-mm", type=float, default=120.0, help="Physical width of the print in mm (default: 120).")
-    parser.add_argument("--spacing-mm", type=float, default=0.34, help="Dot spacing in mm (default: 0.34).")
-    parser.add_argument("--dot-mm", type=float, default=0.24, help="Dot diameter in mm (default: 0.24).")
-    parser.add_argument("--dot-height-mm", type=float, default=0.1, help="Dot height in mm (default: 0.1).")
-    parser.add_argument("--base-thickness-mm", type=float, default=0.2, help="Base tile thickness in mm (default: 0.2).")
-    parser.add_argument("--segments", type=int, default=8, help="Segments to approximate dot circles (default: 8; lower = fewer triangles, faster export/smaller files).")
+    parser.add_argument("--spacing-mm", type=float, default=0.8, help="Dot spacing in mm (default: 0.8).")
+    parser.add_argument("--dot-mm", type=float, default=0.8, help="Dot diameter in mm (default: 0.8).")
+    parser.add_argument("--dot-height-mm", type=float, default=0.4, help="Dot height in mm (default: 0.4).")
+    parser.add_argument("--base-thickness-mm", type=float, default=0.6, help="Base tile thickness in mm (default: 0.6).")
+    parser.add_argument("--segments", type=int, default=12, help="Segments to approximate dot circles (default: 12; lower = fewer triangles, faster export/smaller files).")
     parser.add_argument(
         "--colors",
         type=str,
