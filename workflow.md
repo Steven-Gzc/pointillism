@@ -1,4 +1,4 @@
-# Pointillist 3MF Workflow (Bambu Lab A1 + AMS, 0.2 mm)
+# Pointillist 3MF Workflow (Bambu Lab A1 + AMS, 0.4 mm)
 
 End goal: from a source image and an AMS palette, produce halftoned dot geometry, STLs, and a sliced 3MF for pointillist tiles on the A1 with a 0.4 mm nozzle.
 
