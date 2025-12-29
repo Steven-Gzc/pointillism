@@ -59,10 +59,16 @@ python pointillism_pipeline.py my_image.png bambu-pla-matte-hex-codes.md out \
 - Sheen: test matte vs. glossy to see how highlights affect blending.
 
 ## Known limitations / next steps
-- Palette mapping is simple RGB nearest-color; no gamma or perceptual color space.
-- Overlap/bleed control is manual (adjust spacing and dot size); no adaptive spacing yet.
-- STL generation is ASCII for simplicity; binary STL would be smaller.
-- Defaults are coarse (0.8 mm spacing/dots); adjust down for finer A1 output (e.g., 0.3–0.4 mm spacing, 0.3–0.35 mm dots).
+- Potential improvements:
+  - Use 0.2mm nozzle for finer detail.
+  - Use CMYK filaments over a white base tile to maximize gamut and brighten gaps.
+  - Apply gamma correction (e.g., linearize to gamma 2.2, dither, then map) to compensate for dot gaps darkening the image.
+  - Encode transparency/coverage as variable dot height or base thickness for relief-style translucency (dynamic thickness).
+- limitations
+  - Palette mapping is simple RGB nearest-color; no gamma or perceptual color space.
+  - Overlap/bleed control is manual (adjust spacing and dot size); no adaptive spacing yet.
+  - STL generation is ASCII for simplicity; binary STL would be smaller.
+  - Defaults are coarse (0.8 mm spacing/dots); adjust down for finer A1 output (e.g., 0.3–0.4 mm spacing, 0.3–0.35 mm dots).
 
 ## Files
 - `pointillism_pipeline.py` — CLI generator for dithering, SVG, and STLs.
