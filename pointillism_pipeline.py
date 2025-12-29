@@ -135,12 +135,19 @@ def floyd_steinberg_dither(img: Image.Image, palette: List[Tuple[str, Color]]) -
     return img, color_grid
 
 
-def export_masks(color_grid: List[List[str]], palette: List[Tuple[str, Color]], spacing_mm: float, dot_diameter_mm: float, out_dir: pathlib.Path) -> Dict[str, List[Tuple[float, float]]]:
+def export_masks(
+    color_grid: List[List[str]],
+    palette: List[Tuple[str, Color]],
+    spacing_mm: float,
+    dot_diameter_mm: float,
+    out_dir: pathlib.Path,
+) -> Dict[str, List[Tuple[float, float]]]:
     height = len(color_grid)
     width = len(color_grid[0])
     coords: Dict[str, List[Tuple[float, float]]] = {name: [] for name, _ in palette}
     pitch = spacing_mm * math.sqrt(3) / 2
     radius = dot_diameter_mm / 2
+    width_limit = (width - 1) * spacing_mm + dot_diameter_mm
 
     for y in range(height):
         for x in range(width):
@@ -149,6 +156,8 @@ def export_masks(color_grid: List[List[str]], palette: List[Tuple[str, Color]], 
             x_off = spacing_mm / 2 if (y % 2 == 1) else 0.0
             y_mm = radius + y * pitch
             x_mm = radius + x * spacing_mm + x_off
+            if x_mm > width_limit - radius:  # drop overhanging dots on staggered rows
+                continue
             coords[name].append((x_mm, y_mm))
 
     for name, color in palette:
@@ -335,12 +344,13 @@ def run(
     coords = export_masks(color_grid, palette, spacing_mm, dot_diameter_mm, out_dir)
     pitch = spacing_mm * math.sqrt(3) / 2
     radius = dot_diameter_mm / 2
+    width_limit = (resized.width - 1) * spacing_mm + dot_diameter_mm
 
     # Compute actual extents from generated coordinates (accounts for stagger offsets).
     all_points = [pt for pts in coords.values() for pt in pts]
     max_x = max(pt[0] for pt in all_points) if all_points else 0.0
     max_y = max(pt[1] for pt in all_points) if all_points else 0.0
-    width_mm_used = max_x + radius
+    width_mm_used = max(width_limit, max_x + radius)
     height_mm_used = max_y + radius
 
     export_svg(
