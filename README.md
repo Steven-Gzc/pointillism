@@ -1,4 +1,4 @@
-# Pointillism 3D Printing Toolkit
+# 3D Printed Pointillism Art
 
 Generate Seurat-style pointillist 3D printing models from any image and a limited filament palette. The pipeline reduces an image to a small palette, dithers it, places dots on a hex grid, and emits SVG + STLs for slicing in Bambu Studio.
 
