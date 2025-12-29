@@ -1,0 +1,84 @@
+{
+  "image": "sailboat.jpg",
+  "palette_file": "bambu-pla-basic-hex-codes.md",
+  "selected_colors": [
+    "Cyan",
+    "Magenta",
+    "Yellow",
+    "Black",
+    "Jade White"
+  ],
+  "width_mm": 180.0,
+  "spacing_mm": 0.8,
+  "dot_diameter_mm": 0.8,
+  "dot_height_mm": 0.4,
+  "base_thickness_mm": 0.6,
+  "segments": 12,
+  "pixel_dimensions": {
+    "width": 225,
+    "height": 151
+  },
+  "grid": {
+    "type": "hex_staggered",
+    "vertical_pitch_mm": 0.6928203230275509,
+    "width_mm": 180.00000000000003,
+    "height_mm": 104.72304845413265
+  },
+  "coverage": {
+    "total_dots": 33900,
+    "dot_area_mm2": 0.5026548245743669,
+    "coverage_area_mm2": 17039.99855307104,
+    "coverage_fraction": 0.9039715709730815,
+    "coverage_percent": 90.39715709730814
+  },
+  "palette": [
+    {
+      "name": "Jade White",
+      "rgb": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "name": "Magenta",
+      "rgb": [
+        236,
+        0,
+        140
+      ]
+    },
+    {
+      "name": "Yellow",
+      "rgb": [
+        244,
+        238,
+        42
+      ]
+    },
+    {
+      "name": "Cyan",
+      "rgb": [
+        0,
+        141,
+        198
+      ]
+    },
+    {
+      "name": "Black",
+      "rgb": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "stl_files": {
+    "base": "base.stl",
+    "jade-white": "jade-white.stl",
+    "magenta": "magenta.stl",
+    "yellow": "yellow.stl",
+    "cyan": "cyan.stl",
+    "black": "black.stl"
+  }
+}

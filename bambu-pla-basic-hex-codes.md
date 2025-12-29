@@ -1,0 +1,34 @@
+## Bambu Lab PLA Basic Hex Codes
+
+Name | Hex
+---- | ----
+Jade White | #FFFFFF
+Beige | #F7E6DE
+Light Gray | #D1D3D5
+Silver | #A6A9AA
+Gray | #8E9089
+Magenta | #EC008C
+Pink | #F55A74
+Hot Pink | #F5547C
+Orange | #FF6A13
+Pumpkin Orange | #FF9016
+Gold | #E4BD68
+Sunflower Yellow | #FEC600
+Yellow | #F4EE2A
+Bright Green | #BECF00
+Bambu Green | #00AE42
+Mistletoe Green | #3F8E43
+Bronze | #847D48
+Cocoa Brown | #6F5034
+Brown | #9D432C
+Maroon Red | #9D2235
+Red | #C12E1F
+Turquoise | #00B1B7
+Cyan | #008DC6
+Blue | #0A2989
+Cobalt Blue | #00568B
+Purple | #5E43B7
+Indigo Purple | #482960
+Blue Grey | #5B6579
+Dark Gray | #545454
+Black | #000000

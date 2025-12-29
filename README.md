@@ -29,6 +29,13 @@ python pointillism_pipeline.py my_image.png bambu-pla-matte-hex-codes.md out \
   --segments 12 --colors "Sky Blue,Scarlet Red,Lemon Yellow,Charcoal"
 ```
 
+Sample with PLA CMYK + White:
+```
+python pointillism_pipeline.py sailboat.jpg bambu-pla-basic-hex-codes.md out \
+  --width-mm 120 --spacing-mm 0.35 --dot-mm 0.32 --dot-height-mm 0.2 --base-thickness-mm 0.3 \
+  --colors "Cyan,Magenta,Yellow,Black,Jade White"
+```
+
 ## What the script does
 1) Loads palette (Markdown table or JSON with name/hex). Optional color subset via `--colors`.
 2) Rescales the image so one pixel corresponds to `spacing-mm` (horizontal) on a hex-staggered grid (vertical pitch = spacing * √3/2).
