@@ -422,8 +422,8 @@ def main() -> None:
         "palette",
         type=pathlib.Path,
         nargs="?",
-        default=pathlib.Path("bambu-pla-matte-hex-codes.md"),
-        help="Palette file (.json or Markdown table with Name|Hex). Defaults to bambu-pla-matte-hex-codes.md",
+        default=pathlib.Path("bambu-pla.md"),
+        help="Palette file (.json or Markdown table with Name|Hex). Defaults to bambu-pla.md",
     )
     parser.add_argument(
         "out_dir",
